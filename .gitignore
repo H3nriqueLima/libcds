@@ -1,0 +1,31 @@
+@"
+# --- Artefatos de compilação C ---
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+*.out
+
+# --- Diretórios de build ---
+build/
+bin/
+out/
+CMakeFiles/
+CMakeCache.txt
+
+# --- Visual Studio ---
+.vs/
+*.vcxproj.user
+*.suo
+Debug/
+Release/
+x64/
+x86/
+
+# --- Editores ---
+.vscode/
+.idea/
+"@ | Out-File -Encoding utf8 .gitignore
