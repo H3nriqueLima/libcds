@@ -46,7 +46,6 @@ Cria uma lista vazia. Retorna NULL se o malloc falhar (sempre checar antes de us
 */
 static inline LinkedList* ll_create() {
 	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
-
 	if (list != NULL) {
 		list->head = NULL;
 		list->tail = NULL;
