@@ -1,6 +1,6 @@
 # libcds
 
-Biblioteca de estruturas de dados genéricas em C, **header-only**. Cada estrutura vive em um único `.h` dentro de `include/libcds/`, sem `.c` pra compilar separado — basta incluir o header.
+Biblioteca de estruturas de dados genéricas em C, **header-only**. Cada estrutura vive em um único `.h` dentro de `include/libcds/`, sem `.c` para compilar separada, basta incluir o header.
 
 Por enquanto só tem `linked_list.h`. A ideia é ir adicionando outras (stack, queue, hashmap...) seguindo o mesmo padrão de namespacing.
 
@@ -16,11 +16,11 @@ libcds/
 
 ## Como usar em outro projeto
 
-Por ser header-only, não tem lib pra linkar — só precisa que o compilador ache o diretório `include/`. Algumas formas de fazer isso:
+Por ser header-only, não tem lib para linkar, só precisa que o compilador ache o diretório `include/`. Algumas formas de fazer isso:
 
 ### 1. Copiar direto (mais simples)
 
-Copie `include/libcds/` pra dentro do seu projeto e inclua:
+Copie `include/libcds/` para dentro do seu projeto e inclua:
 
 ```c
 #include "libcds/linked_list.h"
@@ -65,9 +65,9 @@ Depois disso, em qualquer arquivo do seu projeto:
 
 ## API — `linked_list.h`
 
-Tipo público: `LinkedList` (`head`, `tail`, `size` — os três podem ser lidos direto, ex. `list->size`, mas não devem ser alterados manualmente fora das funções abaixo).
+Tipo público: `LinkedList` (`head`, `tail`, `size`, os três podem ser lidos direto, ex. `list->size`, mas não devem ser alterados manualmente fora das funções abaixo).
 
-Todos os valores guardados são `void*` — a lista não sabe o tipo real, então **quem usa a lib é responsável por fazer o cast de volta** e por gerenciar a memória dos valores (a lista só gerencia seus próprios nós).
+Todos os valores guardados são `void*`, a lista não sabe o tipo real, então **quem usa a lib é responsável por fazer o cast de volta** e por gerenciar a memória dos valores (a lista só gerencia seus próprios nós).
 
 ### Criação e estado
 
@@ -121,7 +121,7 @@ typedef void (*LLForEachCallback)(void* value, void* context);
 void ll_for_each(LinkedList* list, LLForEachCallback callback, void* context);
 ```
 
-Percorre a lista chamando `callback` para cada valor, sem expor o nó interno (`LLNode`). `context` é opcional (pode ser `NULL`) — serve pra acumular estado (soma, contador etc.) sem variável global.
+Percorre a lista chamando `callback` para cada valor, sem expor o nó interno (`LLNode`). `context` é opcional (pode ser `NULL`), serve para acumular estado (soma, contador etc.) sem variável global.
 
 ### Liberação de memória
 
