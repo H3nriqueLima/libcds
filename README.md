@@ -8,7 +8,8 @@ Por enquanto só tem `linked_list.h`. A ideia é ir adicionando outras (stack, q
 
 ```
 libcds/
-├── examples/            # exemplos de uso (em construção)
+├── examples/            # exemplos de uso
+    └── example_linked_list.c
 └── include/
     └── libcds/
         └── linked_list.h
