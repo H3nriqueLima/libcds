@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="libcds.vcxproj" />
+  <Project Path="libcds.vcxproj" Id="3bc107a6-8192-4cb4-8212-7aa45ff85fe4" />
 </Solution>

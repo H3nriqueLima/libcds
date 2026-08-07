@@ -82,7 +82,7 @@ static inline void ll_add_first(LinkedList* list, void* value) {
 }
 
 /* 
-Insere value no final da lista.O(1) porque a gente guarda o tail
+Insere value no final da lista - O(1) porque a gente guarda o tail 
 (sem isso teria que percorrer a lista inteira toda vez).
 */
 static inline void ll_add_last(LinkedList* list, void* value) {
