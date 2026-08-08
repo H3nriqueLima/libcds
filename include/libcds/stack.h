@@ -1,12 +1,12 @@
 #pragma once
 
 #include <stdlib.h>
-#include <stdint.h> // SIZE_MAX, usado para checar overflow antes de dobrar a capacidade
+#include <stdint.h> // SIZE_MAX, usado para checar overflow antes de dobrar a capacidade.
 
 /*
 Capacidade inicial do array interno quando stack_create(0) é chamado.
-Escolhida por ser pequena o suficiente pra não desperdiçar memória em 
-pilhas curtas e grande o suficiente pra evitar realloc logo no começo.
+Escolhida por ser pequena o suficiente pra não desperdiçar memória em pilhas curtas e grande o suficiente 
+para evitar realloc logo no começo.
 */
 #define STACK_DEFAULT_CAPACITY 8
 
@@ -22,9 +22,9 @@ data/size/capacity podem ser lidos direto (ex: stack->size), só não devem ser 
 manualmente fora das funções abaixo.
 */
 typedef struct {
-	void** data; // array de ponteiros genéricos
-	size_t size; // quantos elementos tem empilhados agora
-	size_t capacity; // quantos elementos cabem sem precisar de realloc
+	void** data; // array de ponteiros genéricos.
+	size_t size; // quantos elementos tem empilhados agora.
+	size_t capacity; // quantos elementos cabem sem precisar de realloc.
 } Stack;
 
 /*

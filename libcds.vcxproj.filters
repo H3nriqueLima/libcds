@@ -24,9 +24,15 @@
     <ClCompile Include="examples\example_stack.c">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="examples\example_linked_stack.c">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\libcds\stack.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+    <ClInclude Include="include\libcds\linked_stack.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
   </ItemGroup>

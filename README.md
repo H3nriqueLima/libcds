@@ -2,17 +2,19 @@
 
 Biblioteca de estruturas de dados genéricas em C, **header-only**. Cada estrutura vive em um único `.h` dentro de `include/libcds/`, sem `.c` para compilar separada, basta incluir o header.
 
-Por enquanto só tem `linked_list.h`. A ideia é ir adicionando outras (stack, queue, hashmap...) seguindo o mesmo padrão de namespacing.
-
 ## Estrutura do projeto
 
 ```
 libcds/
 ├── examples/            # exemplos de uso
     └── example_linked_list.c
+    └── example_stack.c
+    └── example_linked_stack.c
 └── include/
     └── libcds/
         └── linked_list.h
+        └── stack.h
+        └── linked_stack.h
 ```
 
 ## Como usar em outro projeto
@@ -169,9 +171,136 @@ int main() {
 }
 ```
 
-## Convenções de nomenclatura
+## API — `stack.h`
+ 
+Pilha baseada em **array dinâmico** (não em nós ligados por ponteiro), push/pop só mexem no topo, e o array dobra de capacidade quando enche (ver a comparação com `linked_stack.h` no final desta seção).
+ 
+Tipo público: `Stack` (`data`, `size`, `capacity` — podem ser lidos direto, ex. `stack->size`, mas não devem ser alterados manualmente fora das funções abaixo).
+ 
+### Criação e estado
+ 
+| Função | Descrição | Complexidade |
+|---|---|---|
+| `Stack* stack_create(size_t initial_capacity)` | Cria uma pilha vazia. Se `initial_capacity` for `0`, usa `STACK_DEFAULT_CAPACITY` (8). Retorna `NULL` se `malloc` falhar. | O(1) |
+| `int stack_is_empty(Stack* stack)` | `1` se vazia ou `NULL`, `0` caso contrário. | O(1) |
+ 
+### Push / Pop / Peek
+ 
+| Função | Descrição | Complexidade |
+|---|---|---|
+| `int stack_push(Stack* stack, void* value)` | Empilha `value` no topo. Retorna `1` em sucesso, `0` se a alocação falhar (dobra de capacidade ou overflow de `size_t`). | O(1) amortizado |
+| `void* stack_pop(Stack* stack)` | Desempilha e retorna o valor do topo. `NULL` se vazia. | O(1) |
+| `void* stack_peek(Stack* stack)` | Olha o valor do topo sem remover. `NULL` se vazia. | O(1) |
+ 
+> **Atenção:** mesma ressalva da `LinkedList`, `NULL` de retorno não
+> diferencia "pilha vazia" de "valor `NULL` empilhado de propósito".
+> `stack_push` retorna `int` (diferente da maioria das funções da lib,
+> que falham em silêncio) porque aqui uma falha de alocação significa
+> que o valor **não foi** empilhado, importante o chamador saber disso.
+ 
+### Liberação de memória
+ 
+| Função | Descrição |
+|---|---|
+| `void stack_clear(Stack* stack)` | Zera `size`, **não** libera os valores nem encolhe `capacity` (fica pronta pra reusar sem realloc). |
+| `void stack_clear_with_values(Stack* stack, StackFreeValueFn free_fn)` | Igual acima, mas chama `free_fn` em cada valor restante antes de zerar. |
+| `void stack_destroy(Stack* stack)` | Libera o array interno + a struct `Stack`. **Não** libera os valores. Ponteiro fica inválido depois. |
+| `void stack_destroy_with_values(Stack* stack, StackFreeValueFn free_fn)` | Igual acima, mas libera os valores também via `free_fn`. |
+ 
+```c
+typedef void (*StackFreeValueFn)(void* value);
+```
+ 
+### Exemplo rápido
+ 
+```c
+#include "libcds/stack.h"
+#include <stdio.h>
+ 
+int main() {
+    Stack* stack = stack_create(0);
+ 
+    int a = 1, b = 2, c = 3;
+    stack_push(stack, &a);
+    stack_push(stack, &b);
+    stack_push(stack, &c);
+ 
+    printf("%d\n", *(int*)stack_pop(stack));  // 3
+    printf("%d\n", *(int*)stack_peek(stack)); // 2 (nao remove)
+ 
+    stack_destroy(stack); // valores sao locais (stack), nao precisa liberar
+    return 0;
+}
+```
 
-Funções e tipos da lista usam o prefixo `ll_`/`LL` (`ll_create`, `LLNode`, `LLCompareFn`...) de propósito: como a lib vai crescer com outras estruturas (`stack`, `queue`...), nomes genéricos colidiriam se dois headers forem incluídos no mesmo arquivo `.c`.
+## API — `linked_stack.h`
+ 
+Pilha implementada por **composição** em cima da `LinkedList` (o header já inclui `linked_list.h` sozinho), cada `push`/`pop` é um `ll_add_first`/`ll_remove_first` por baixo, sem `capacity` nem realloc.
+ 
+Tipo público: `LinkedStack` (`list` — um `LinkedList*` interno; não deveria ser acessado diretamente fora das funções abaixo, só é exposto porque C não tem `private` de verdade).
+ 
+### Criação e estado
+ 
+| Função | Descrição | Complexidade |
+|---|---|---|
+| `LinkedStack* ls_create(void)` | Cria uma pilha vazia. Retorna `NULL` se algum `malloc` interno falhar. | O(1) |
+| `int ls_is_empty(LinkedStack* stack)` | `1` se vazia ou `NULL`, `0` caso contrário. | O(1) |
+ 
+### Push / Pop / Peek
+ 
+| Função | Descrição | Complexidade |
+|---|---|---|
+| `int ls_push(LinkedStack* stack, void* value)` | Empilha `value` no topo (aloca um nó novo). Retorna `1` em sucesso, `0` se o `malloc` do nó falhar. | O(1) sempre, sem amortização |
+| `void* ls_pop(LinkedStack* stack)` | Desempilha e retorna o valor do topo. `NULL` se vazia. | O(1) |
+| `void* ls_peek(LinkedStack* stack)` | Olha o valor do topo sem remover. `NULL` se vazia. | O(1) |
+ 
+> `ll_add_first` (usada por baixo do `ls_push`) é `void` e falha em
+> silêncio se o `malloc` do nó falhar. Pra ainda assim sinalizar a
+> falha pro chamador, `ls_push` compara o `size` da lista interna
+> antes/depois da chamada.
+ 
+### Liberação de memória
+ 
+| Função | Descrição |
+|---|---|
+| `void ls_clear(LinkedStack* stack)` | Remove todos os nós, não libera os valores. Continua válida e reutilizável. |
+| `void ls_clear_with_values(LinkedStack* stack, LLFreeValueFn free_fn)` | Igual acima, mas libera cada valor com `free_fn`. |
+| `void ls_destroy(LinkedStack* stack)` | Libera a lista interna + a struct `LinkedStack`. Não libera os valores. |
+| `void ls_destroy_with_values(LinkedStack* stack, LLFreeValueFn free_fn)` | Igual acima, mas libera os valores também. |
+ 
+Reusa `LLFreeValueFn` de `linked_list.h` em vez de definir um tipo novo idêntico, já que `linked_stack.h` depende da `LinkedList` mesmo.
+ 
+### Exemplo rápido
+ 
+```c
+#include "libcds/linked_stack.h"
+#include <stdio.h>
+ 
+int main() {
+    LinkedStack* stack = ls_create();
+ 
+    int a = 1, b = 2, c = 3;
+    ls_push(stack, &a);
+    ls_push(stack, &b);
+    ls_push(stack, &c);
+ 
+    printf("%d\n", *(int*)ls_pop(stack));  // 3
+    printf("%d\n", *(int*)ls_peek(stack)); // 2 (nao remove)
+ 
+    ls_destroy(stack); // valores sao locais (stack), nao precisa liberar
+    return 0;
+}
+```
+
+### `stack.h` vs `linked_stack.h` — qual usar
+ 
+| | `Stack` (array) | `LinkedStack` (encadeada) |
+|---|---|---|
+| Push/pop | O(1) amortizado (realloc ocasional) | O(1) sempre, sem exceção |
+| Alocação | Só nos momentos de crescimento | Um malloc/free por elemento, sempre |
+| Cache da CPU | Ótimo (memória contígua) | Pior (nós espalhados na heap) |
+| Memória ociosa | Pode sobrar capacidade não usada após um pico | Nunca sobra, cada nó existe só enquanto o valor existe |
+| Melhor pra | Uso geral, throughput médio (escolha default) | Latência previsível por operação, ou quando reservar capacidade extra não faz sentido |
 
 ## Requisitos
 

@@ -147,9 +147,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="examples\example_linked_list.c" />
+    <ClCompile Include="examples\example_linked_stack.c" />
     <ClCompile Include="examples\example_stack.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\libcds\linked_stack.h" />
     <ClInclude Include="include\libcds\stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
